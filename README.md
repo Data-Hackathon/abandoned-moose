@@ -1,4 +1,4 @@
-abandoned-moose
+Abandoned Moose
 ===============
 
-This repository contains the server for the DataMayHack 2013
+This repository contains the server and client for the DataMayHack 2013
