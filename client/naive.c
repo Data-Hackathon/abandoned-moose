@@ -30,9 +30,11 @@ int main() {
 	}
 
 
-	while(scanf("%s", msg) == 1) {
+	while(printf("send> "), scanf("%s", msg) == 1) {
+		int datalen;
 		send(s, msg, strlen(msg), 0);
-		recv(s, data, NMAX, 0);
+		datalen = recv(s, data, NMAX, 0);
+		data[datalen] = '\0';
 		printf("got> %s\n", data);
 	}
 	close(s);
