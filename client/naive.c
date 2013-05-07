@@ -30,9 +30,9 @@ int main() {
 	}
 
 
-	while(printf("send> "), scanf("%s", msg) == 1) {
+	while(printf("send> "), fgets(msg, NMAX, stdin) != NULL) {
 		int datalen;
-		send(s, msg, strlen(msg), 0);
+		send(s, msg, strlen(msg) - 1, 0);
 		datalen = recv(s, data, NMAX, 0);
 		data[datalen] = '\0';
 		printf("got> %s\n", data);
