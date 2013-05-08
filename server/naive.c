@@ -31,7 +31,6 @@ void reverse(char *data) {
 	}
 }
 
-/* Use this!? */
 int con(char *host, char *port) {
 	int srv, yes = 1;
 	struct addrinfo hints, *res, *r;
@@ -92,7 +91,6 @@ int main() {
 		char *data = malloc(sizeof(char) * NMAX);
 		rd = md;
 
-
 		if(select(numfds+1, &rd, 0, 0, 0) == -1) {
 			fprintf(stderr, "Error in select()\n");
 			return 1;
@@ -139,6 +137,7 @@ int main() {
 							*/
 							if(!strncmp(data, "broadcast", index-data)) {
 								printf("Sending broadcast...\n");
+								data = index + 1;
 								for(j = 0; j < numfds; j++) {
 									if(FD_ISSET(j, &md)) {
 										if(j != s && j != i) {
