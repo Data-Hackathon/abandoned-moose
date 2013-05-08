@@ -31,40 +31,49 @@ void reverse(char *data) {
 	}
 }
 
+/* Use this!? */
+int con(char *host, char *port) {
+	int srv, yes = 1;
+	struct addrinfo hints, *res, *r;
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	if(getaddrinfo(host, port, &hints, &res) != 0) {
+		fprintf(stderr, "Error: cannot resolve hostname %s\n", host);
+		exit(1);
+	}
+	for(r = res; r; r = r->ai_next) {
+		if((srv = socket(r->ai_family, r->ai_socktype, r->ai_protocol)) < 0)
+			continue;
+
+		setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+		
+		if(bind(srv, res->ai_addr, res->ai_addrlen) == -1) {
+			close(srv);
+			fprintf(stderr, "Error binding!\n");
+			continue;
+		}
+		break;
+	}
+	freeaddrinfo(res);
+	if(!r) {
+		fprintf(stderr, "Error: cannt connect to host %s\n", host);
+		exit(1);
+	}
+	return srv;
+}
+
 int main() {
-	int s, inc, numfds, yes = 1;
+	int s, inc, numfds;
 	char *host = "127.0.0.1";
 	char *port = "9001";
-	struct addrinfo hints, *res;
 	struct sockaddr_storage sinc;
 	struct commands cmd[] = {{ "reverse", reverse}};
 	fd_set md, rd;
 	
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
+	s = con(host, port);
 
-	if(getaddrinfo(host, port, &hints, &res)) {
-		fprintf(stderr, "Error getting address info.\n");
-		return 0;
-	}
-	/* Go through res and try to bind instead of just assuming that is is correct? */
-
-	if((s = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0 ) {
-		fprintf(stderr, "Error creating socket.\n");
-		return 1;
-	}
-
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-
-	if(bind(s, res->ai_addr, res->ai_addrlen) == -1) {
-		close(s);
-		fprintf(stderr, "Error binding!\n");
-		return 1;
-	}
-
-	freeaddrinfo(res);
-	
 	if(listen(s, BACKLOG) == -1) {
 		close(s);
 		fprintf(stderr, "Error listening!\n");
