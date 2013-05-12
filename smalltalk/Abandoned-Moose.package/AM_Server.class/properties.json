@@ -1,0 +1,14 @@
+{
+	"category" : "Abandoned-Moose",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"serverSocket" ],
+	"name" : "AM_Server",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }
