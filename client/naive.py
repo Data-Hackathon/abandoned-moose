@@ -1,10 +1,14 @@
 u"""A naive version of the client (hopefully) supporting the same protocol as
 the server."""
 
-import socket
+import readline, socket, sys
 
-HOST = 'localhost'
-PORT = 9001
+# Yes, this is the ugly way to do it.
+# TODO: Make this more beautiful
+HOST = sys.argv[1]
+PORT = int(sys.argv[2])
+
+RECV_SIZE = 4096
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,7 +22,7 @@ try:
 
         s.send(user_input)
 
-        data = s.recv(1024)
+        data = s.recv(RECV_SIZE)
         print 'got>', data
 
 finally:
