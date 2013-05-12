@@ -14,10 +14,10 @@
 
 struct commands {
 	char *name;
-	void (*func)(char *);
+	void (*func)(int, char *);
 };
 
-void reverse(char *data) {
+void reverse(int socket, char *data) {
 	char tmp, *p;
 	if(data == NULL || !(*data))
 		return;
@@ -30,6 +30,10 @@ void reverse(char *data) {
 		p--;
 	}
 }
+void whoami(int s, char *data) {
+	snprintf(data, NMAX, "%d\n", s);
+}
+	
 
 int con(char *host, char *port) {
 	int srv, yes = 1;
@@ -57,7 +61,7 @@ int con(char *host, char *port) {
 	}
 	freeaddrinfo(res);
 	if(!r) {
-		fprintf(stderr, "Error: cannt connect to host %s\n", host);
+		fprintf(stderr, "Error: cannot connect to host %s\n", host);
 		exit(1);
 	}
 	return srv;
@@ -65,10 +69,12 @@ int con(char *host, char *port) {
 
 int main() {
 	int s, inc, numfds;
-	char *host = "127.0.0.1";
+	char *host = "129.16.237.226";
 	char *port = "9001";
 	struct sockaddr_storage sinc;
-	struct commands cmd[] = {{ "reverse", reverse}};
+	struct commands cmd[] = {	{"reverse", reverse},
+								{"whoami", whoami}
+							};
 	fd_set md, rd;
 	
 	s = con(host, port);
@@ -129,7 +135,8 @@ int main() {
 							for(j = 0; j < sizeof(cmd)/sizeof(cmd[0]); j++) {
 								if(!strncmp(data, cmd[j].name, index-data)) {
 									data = index + 1;
-									cmd[j].func(data);
+									cmd[j].func(i, data);
+									break;
 								}
 							}
 							/* This needs to be taken care of better in
@@ -138,12 +145,9 @@ int main() {
 							if(!strncmp(data, "broadcast", index-data)) {
 								printf("Sending broadcast...\n");
 								data = index + 1;
-								for(j = 0; j < numfds; j++) {
+								for(j = 0; j <= numfds; j++) {
 									if(FD_ISSET(j, &md)) {
 										if(j != s && j != i) {
-											/* Sending broadcast to everyone
-											** except myself and server
-											*/
 											send(j, data, strlen(data), 0);
 										}
 									}
